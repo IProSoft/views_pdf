@@ -527,10 +527,10 @@ class PdfTemplate extends FPDI {
     $this->SetFont($this->defaultFontFamily, implode('', $this->defaultFontStyle), $this->defaultFontSize);
 
     // Run eval after.
-    if ($options['render']['bypass_eval_after'] && !empty($options['render']['eval_alter'])) {
+    if ($options['render']['bypass_eval_after'] && !empty($options['render']['eval_after'])) {
       eval($options['render']['eval_after']);
     }
-    elseif (!empty($options['render']['eval_alter'])) {
+    elseif (!empty($options['render']['eval_after'])) {
       $content = php_eval($options['render']['eval_after']);
     }
 
