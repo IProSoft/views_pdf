@@ -245,6 +245,8 @@ class PdfTemplate extends FPDI {
     $options['render'] += array(
       'eval_before' => '',
       'eval_after' => '',
+      'bypass_eval_before' => FALSE,
+      'bypass_eval_after' => FALSE,
     );
 
     $x = $y = 0;
