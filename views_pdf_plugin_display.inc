@@ -118,7 +118,7 @@ class views_pdf_plugin_display extends views_plugin_display_page {
     }
 
     if (empty($path_to_store_pdf)) {
-      $path_to_store_pdf = $this->view->name;
+      $path_to_store_pdf = $this->view->get_title();
     }
 
     if (!preg_match('/\.pdf$/', $path_to_store_pdf)) {
