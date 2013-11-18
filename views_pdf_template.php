@@ -815,7 +815,7 @@ class PdfTemplate extends FPDI {
   /**
    * This method adds a new page to the PDF.
    */
-  public function addPage($path = NULL, $reset = FALSE, $numbering = 'main') {
+  public function addPage($orientation = '', $format = '', $keepmargins = false, $tocpage = false, $path = NULL, $reset = FALSE, $numbering = 'main') {
 
     // Do not add any new page, if we are writing
     // in the footer or header.
