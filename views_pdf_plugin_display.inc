@@ -80,7 +80,7 @@ class views_pdf_plugin_display extends views_plugin_display_page {
     }
 
     if ($this->get_option('default_page_format') == 'custom') {
-      if (preg_match('/([0-9]+)x([0-9]+)/', $this->get_option('default_page_format_custom'), $result)) {
+      if (preg_match('~([0-9\.]+)x([0-9\.]+)~', $this->get_option('default_page_format_custom'), $result)) {
         $format[0] = $result[1]; // width
         $format[1] = $result[2]; // height
       }
