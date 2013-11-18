@@ -411,7 +411,7 @@ class PdfTemplate extends FPDI {
       return;
     }
 
-    if (!empty($view->field[$key]->options['exclude']) || (empty($content) && $view->field[$key]->options['hide_empty'])) {
+    if (empty($key) || !empty($view->field[$key]->options['exclude']) || (empty($content) && $view->field[$key]->options['hide_empty'])) {
       return '';
     }
 
@@ -495,7 +495,7 @@ class PdfTemplate extends FPDI {
     $fitcell = FALSE;
 
     // Run eval before.
-    if ($options['render']['bypass_eval_before'] && !empty($options['render']['eval_before'])) {
+    if (!empty($options['render']['bypass_eval_before']) && !empty($options['render']['eval_before'])) {
       eval($options['render']['eval_before']);
     }
     elseif (!empty($options['render']['eval_before']))  {
@@ -529,7 +529,7 @@ class PdfTemplate extends FPDI {
     $this->SetFont($this->defaultFontFamily, implode('', $this->defaultFontStyle), $this->defaultFontSize);
 
     // Run eval after.
-    if ($options['render']['bypass_eval_after'] && !empty($options['render']['eval_after'])) {
+    if (!empty($options['render']['bypass_eval_after']) && !empty($options['render']['eval_after'])) {
       eval($options['render']['eval_after']);
     }
     elseif (!empty($options['render']['eval_after'])) {
