@@ -14,7 +14,14 @@
  * Get the depending classes.
  */
 require_once views_pdf_get_library('tcpdf') . '/tcpdf.php';
-require_once views_pdf_get_library('fpdi') . '/fpdi2tcpdf_bridge.php';
+
+if (file_exists(views_pdf_get_library('fpdi') . '/fpdi_bridge.php')) {
+  require_once views_pdf_get_library('fpdi') . '/fpdi_bridge.php';
+}
+else {
+  require_once views_pdf_get_library('fpdi') . '/fpdi2tcpdf_bridge.php';
+}
+
 require_once views_pdf_get_library('fpdi') . '/fpdi.php';
 
 
@@ -194,8 +201,11 @@ class PdfTemplate extends FPDI {
   /**
    * Parse color input into an array.
    *
-   * @param string $color Color entered by the user
-   * @return array color as an array
+   * @param string $color
+   *   Color entered by the user
+   *
+   * @return array
+   *   Color as an array
    */
   public function parseColor($color) {
     $color = trim($color, ', ');
