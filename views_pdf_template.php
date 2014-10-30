@@ -707,7 +707,7 @@ class PdfTemplate extends FPDI {
       $this->SetX($x);
       $this->setPage($page);
 
-      $this->renderRow($x, $y, $column->options['label'], $headerOptions, $view, $id, TRUE);
+      $this->renderRow($x, $y, $column->options['label'], $headerOptions, $view, $id, FALSE);
       $x += $headerOptions['position']['width'];
     }
 
