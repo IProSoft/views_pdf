@@ -505,11 +505,13 @@ class PdfTemplate extends FPDI {
         $fitcell = FALSE;
 
         // Run eval before.
-        if (!empty($options['render']['bypass_eval_before']) && !empty($options['render']['eval_before'])) {
-          eval($options['render']['eval_before']);
-        }
-        elseif (!empty($options['render']['eval_before']))  {
-          $content = php_eval($options['render']['eval_before']);
+        if (VIEWS_PDF_PHP) {
+          if (!empty($options['render']['bypass_eval_before']) && !empty($options['render']['eval_before'])) {
+            eval($options['render']['eval_before']);
+          }
+          elseif (!empty($options['render']['eval_before']))  {
+            $content = php_eval($options['render']['eval_before']);
+          }
         }
 
         // Add css if there is a css file set and stripHTML is not active.
@@ -544,11 +546,13 @@ class PdfTemplate extends FPDI {
         $this->SetFont($this->defaultFontFamily, implode('', $this->defaultFontStyle), $this->defaultFontSize);
 
         // Run eval after.
-        if (!empty($options['render']['bypass_eval_after']) && !empty($options['render']['eval_after'])) {
-          eval($options['render']['eval_after']);
-        }
-        elseif (!empty($options['render']['eval_after'])) {
-          $content = php_eval($options['render']['eval_after']);
+        if (VIEWS_PDF_PHP) {
+          if (!empty($options['render']['bypass_eval_after']) && !empty($options['render']['eval_after'])) {
+            eval($options['render']['eval_after']);
+          }
+          elseif (!empty($options['render']['eval_after'])) {
+            $content = php_eval($options['render']['eval_after']);
+          }
         }
 
         // Write Coordinates of element.
