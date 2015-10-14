@@ -779,6 +779,7 @@ class PdfTemplate extends FPDI {
 
       $rowY += $options['position']['row_height'];
 
+      $view->row_index++;
     }
 
     $this->SetY($rowY + $options['position']['row_height']);
