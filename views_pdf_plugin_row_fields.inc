@@ -326,6 +326,15 @@ class views_pdf_plugin_row_fields extends views_plugin_row {
       '#title' => t('Upload New Template File'),
     );
 
+    $form['#attached']['js'][] = array(
+          'type' => 'setting',
+          'data' => array(
+            'urlIsAjaxTrusted' => array(
+              $GLOBALS['base_url'] . '/' . current_path() => TRUE,
+            ),
+          ),
+        );
+
 
   }
 
