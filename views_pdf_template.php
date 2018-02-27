@@ -515,7 +515,7 @@ class PdfTemplate extends FPDI {
             $content = php_eval($options['render']['eval_before']);
           }
         }
-        if ($options['render']['custom_layout']) {
+        if (isset($options['render']['custom_layout'])) {
           // Custom layout hook.
           $layout_data = array (
             'x'          => &$x,
@@ -568,7 +568,7 @@ class PdfTemplate extends FPDI {
         $this->SetFont($this->defaultFontFamily, implode('', $this->defaultFontStyle), $this->defaultFontSize);
 
         // Post render.
-        if ($options['render']['custom_post']) {
+        if (isset($options['render']['custom_post'])) {
           drupal_alter('views_pdf_custom_post', $view);
         }
         // Run eval after.
