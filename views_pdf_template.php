@@ -299,8 +299,8 @@ class PdfTemplate extends FPDI {
 
     // Determin the x and y coordinates
     if ($options['position']['object'] == 'last_position') {
-      $x = $this->x + $options['position']['x'];
-      $y = $this->y + $options['position']['y'];
+      $x = (float) $this->x + (float) $options['position']['x'];
+      $y = (float) $this->y + (float) $options['position']['y'];
     }
     elseif ($options['position']['object'] == 'page') {
       switch ($options['position']['corner']) {
