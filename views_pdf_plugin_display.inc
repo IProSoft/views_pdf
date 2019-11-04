@@ -27,26 +27,8 @@ class views_pdf_plugin_display extends views_plugin_display_page {
    * Render the display
    */
   function render() {
-    // Generall document layout
-
-    // Set default code
-    $this->view->pdf->SetFont('');
-
-    // Add leading pages
-    $path = $this->view->pdf->getTemplatePath($this->get_option('leading_template'));
-    $this->view->pdf->addPdfDocument($path);
-
-    // Set the default background template
-    $path = $this->view->pdf->getTemplatePath($this->get_option('template'));
-    $this->view->pdf->setDefaultPageTemplate($path, 'main');
-
     // Render the items
     $this->view->style_plugin->render();
-
-    // Add succeed pages
-    $path = $this->view->pdf->getTemplatePath($this->get_option('succeed_template'));
-    $this->view->pdf->addPdfDocument($path);
-
   }
 
   /**
@@ -61,7 +43,6 @@ class views_pdf_plugin_display extends views_plugin_display_page {
    * This function executes the PDF display.
    */
   function execute($path_to_store_pdf = '', $destination = 'I') {
-
     // Defines external configuration for TCPDF library
     if (!defined('K_TCPDF_EXTERNAL_CONFIG')) {
       $tcpdf_path = drupal_realpath(views_pdf_get_library('tcpdf'));
@@ -109,14 +90,33 @@ class views_pdf_plugin_display extends views_plugin_display_page {
     $this->view->pdf->setDefaultTextAlign($this->get_option('default_text_align'));
     $this->view->pdf->setDefaultFontColor($this->get_option('default_font_color'));
 
-    $this->view->pdf->setViewsHeader($this->view->display_handler->render_header());
-    $this->view->pdf->setViewsFooter($this->view->display_handler->render_footer());
+    // Generall document layout
 
+    // Set default code
+    $this->view->pdf->SetFont('');
+
+    // Add leading pages
+    $path = $this->view->pdf->getTemplatePath($this->get_option('leading_template'));
+    $this->view->pdf->addPdfDocument($path);
+
+    // Set the default background template
+    $path = $this->view->pdf->getTemplatePath($this->get_option('template'));
+    $this->view->pdf->setDefaultPageTemplate($path, 'main');
+
+    $this->view->pdf->setViewsHeader($this->view->display_handler->render_header(), $this->options['style_options']);
+    $footer = $this->view->display_handler->render_footer();
     $html = $this->view->render($this->display->id);
+    $this->view->pdf->setViewsFooter($footer, $this->options['style_options']);
+
+    // Add succeed pages
+    $path = $this->view->pdf->getTemplatePath($this->get_option('succeed_template'));
+    $this->view->pdf->addPdfDocument($path);
 
     if (!empty($html)) {
       echo $html;
     }
+
+
 
     if (empty($path_to_store_pdf)) {
       $path_to_store_pdf = $this->view->get_title();

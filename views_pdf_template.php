@@ -147,33 +147,82 @@ class PdfTemplate extends FPDI {
     );
   }
 
-  public function setViewsHeader($header) {
+  public function setViewsHeader($header, $options) {
     $this->views_header = $header;
+    if (!empty($this->views_header)) {
+      if (isset($options['position'])) {
+        // Set draw point to the indicated position:
+        if (empty($options['position']['x'])) {
+          $options['position']['x'] = 0;
+        }
+
+        if (empty($options['position']['y'])) {
+          $options['position']['y'] = 0;
+        }
+
+        if ((isset($options['position']['last_writing_position']) && $options['position']['last_writing_position'])) {
+          $y = $options['position']['y'] + $this->y;
+          $x = $options['position']['x'] + $this->x;
+        }
+        else {
+          $y = $options['position']['y'];
+          $x = $options['position']['x'];
+        }
+
+        $this->lMargin = $x;
+      }
+
+      $page = $this->getPage();
+      if ($page == 0) {
+        $this->addPage();
+        $page = $this->getPage();
+      }
+
+      if (isset($options['position'])) {
+        $this->SetXY($x, $y);
+      }
+
+      $this->setPage($page);
+
+      $this->writeHTML($this->views_header, true, false, false, true);
+
+      if (isset($options['position'])) {
+        $this->SetX($x);
+      }
+    }
   }
+
   /**
    * This method must be overriden, in the other case, some
    * output is printed to the header.
    */
-  function Header() {
-    if (!empty($this->views_header)) {
-      $this->writeHTML($this->views_header);
+  function Header() { }
+
+  public function setViewsFooter($footer, $options) {
+    $this->views_footer = $footer;
+    if (!empty($this->views_footer)) {
+
+      if (isset($options['position'])) {
+        $this->lMargin = $options['position']['x'];
+      }
+
+      $page = $this->getPage();
+      if ($page == 0) {
+        $this->addPage();
+        $page = $this->getPage();
+      }
+
+      $this->setPage($page);
+
+      $this->writeHTML($this->views_footer, true, false, true, true);
     }
   }
-
-  public function setViewsFooter($footer) {
-    $this->views_footer = $footer;
-   }
 
   /**
    * This method must be overriden, in the other case, some
    * output is printed to the footer.
    */
-  function Footer() {
-    $this->SetY(-$this->bMargin);
-    if (!empty($this->views_footer)) {
-      $this->writeHTML($this->views_footer);
-    }
-  }
+  function Footer() { }
 
   /**
    * Converts a hex color into an array with RGB colors.
@@ -613,7 +662,11 @@ class PdfTemplate extends FPDI {
       $options['position']['y'] = 0;
     }
 
-    if (isset($options['position']['last_writing_position']) && $options['position']['last_writing_position']) {
+    if (!empty($this->views_header)) {
+      $y = $this->y;
+      $x = $this->x;
+    }
+    elseif ((isset($options['position']['last_writing_position']) && $options['position']['last_writing_position'])) {
       $y = $options['position']['y'] + $this->y;
       $x = $options['position']['x'] + $this->x;
     }
@@ -808,7 +861,7 @@ class PdfTemplate extends FPDI {
       $view->row_index++;
     }
 
-    $this->SetY($rowY + $options['position']['row_height']);
+    $this->SetY($rowY + $options['position']['row_height'], false);
   }
 
   /**
