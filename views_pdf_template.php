@@ -346,7 +346,7 @@ class PdfTemplate extends FPDI {
       $last_writing_y_position = $this->y;
     }
 
-    // Determin the x and y coordinates
+    // Determine the x and y coordinates
     if ($options['position']['object'] == 'last_position') {
       $x = (float) $this->x + (float) $options['position']['x'];
       $y = (float) $this->y + (float) $options['position']['y'];
@@ -355,25 +355,23 @@ class PdfTemplate extends FPDI {
       switch ($options['position']['corner']) {
         default:
         case 'top_left':
-          $x = $options['position']['x']+$this->lMargin;
-          $y = $options['position']['y']+$this->tMargin;
+          $x = (float) $options['position']['x'] + (float) $this->lMargin;
+          $y = (float) $options['position']['y'] + (float) $this->tMargin;
           break;
 
         case 'top_right':
-          $x = $options['position']['x'] + $pageDim['wk'] - $this->rMargin;
-          $y = $options['position']['y'] + $this->tMargin;
+          $x = (float) $options['position']['x'] + (float) $pageDim['wk'] - (float) $this->rMargin;
+          $y = (float) $options['position']['y'] + (float) $this->tMargin;
           break;
 
         case 'bottom_left':
-          $x = $options['position']['x'] + $this->rMargin;
-          $y = $options['position']['y'] + $pageDim['hk'] - $this->bMargin;
-
+          $x = (float) $options['position']['x'] + (float) $this->rMargin;
+          $y = (float) $options['position']['y'] + (float) $pageDim['hk'] - (float) $this->bMargin;
           break;
 
         case 'bottom_right':
-          $x = $options['position']['x'] + $pageDim['wk'] - $this->rMargin;
-          $y = $options['position']['y'] + $pageDim['hk'] - $this->bMargin;
-
+          $x = (float) $options['position']['x'] + (float) $pageDim['wk'] - (float) $this->rMargin;
+          $y = (float) $options['position']['y'] + (float) $pageDim['hk'] - (float) $this->bMargin;
           break;
       }
     }
@@ -397,25 +395,23 @@ class PdfTemplate extends FPDI {
         switch ($options['position']['corner']) {
           default:
           case 'top_left':
-            $x = $options['position']['x'] + $this->elements[$relative_to_element]['x'];
-            $y = $options['position']['y'] + $this->elements[$relative_to_element]['y'];
+            $x = (float) $options['position']['x'] + (float) $this->elements[$relative_to_element]['x'];
+            $y = (float) $options['position']['y'] + (float) $this->elements[$relative_to_element]['y'];
             break;
 
           case 'top_right':
-            $x = $options['position']['x'] + $this->elements[$relative_to_element]['x'] + $this->elements[$relative_to_element]['width'];
-            $y = $options['position']['y'] + $this->elements[$relative_to_element]['y'];
+            $x = (float) $options['position']['x'] + (float) $this->elements[$relative_to_element]['x'] + (float) $this->elements[$relative_to_element]['width'];
+            $y = (float) $options['position']['y'] + (float) $this->elements[$relative_to_element]['y'];
             break;
 
           case 'bottom_left':
-            $x = $options['position']['x'] + $this->elements[$relative_to_element]['x'];
-            $y = $options['position']['y'] + $this->elements[$relative_to_element]['y'] + $this->elements[$relative_to_element]['height'];
-
+            $x = (float) $options['position']['x'] + (float) $this->elements[$relative_to_element]['x'];
+            $y = (float) $options['position']['y'] + (float) $this->elements[$relative_to_element]['y'] + (float) $this->elements[$relative_to_element]['height'];
             break;
 
           case 'bottom_right':
-            $x = $options['position']['x'] + $this->elements[$relative_to_element]['x'] + $this->elements[$relative_to_element]['width'];
-            $y = $options['position']['y'] + $this->elements[$relative_to_element]['y'] + $this->elements[$relative_to_element]['height'];
-
+            $x = (float) $options['position']['x'] + (float) $this->elements[$relative_to_element]['x'] + (float) $this->elements[$relative_to_element]['width'];
+            $y = (float) $options['position']['y'] + (float) $this->elements[$relative_to_element]['y'] + (float) $this->elements[$relative_to_element]['height'];
             break;
         }
 
@@ -431,8 +427,8 @@ class PdfTemplate extends FPDI {
 
       }
       else {
-        $x = $this->x;
-        $y = $last_writing_y_position;
+        $x = (float) $this->x;
+        $y = (float) $last_writing_y_position;
       }
 
     }
