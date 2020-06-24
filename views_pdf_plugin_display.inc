@@ -368,19 +368,8 @@ class views_pdf_plugin_display extends views_plugin_display_page {
           '#default_value' => $this->get_option('succeed_template'),
         );
 
-        $form['template_file'] = array(
-          '#type' => 'file',
-          '#title' => t('Upload New Template File'),
-        );
-
-        $form['#attached']['js'][] = array(
-          'type' => 'setting',
-          'data' => array(
-            'urlIsAjaxTrusted' => array(
-              $GLOBALS['base_url'] . '/' . current_path() => TRUE,
-            ),
-          ),
-        );
+        $form['notes']['#markup'] =
+        t('To manage template files and upload new ones, go to the <a href="@link">PDF Templates</a> tab on the main Views page.', array('@link' => '/admin/structure/views/pdfs'));
 
         break;
 
@@ -526,22 +515,6 @@ class views_pdf_plugin_display extends views_plugin_display_page {
         break;
 
       case 'pdf_template':
-        // Save new file:
-        // Note: The jQuery update is required to use Ajax for file upload. With
-        // default Drupal jQuery it will not work.
-        // For upload with Ajax a iFrame is open and upload in it, because
-        // normal forms are not allowed to handle directly.
-        $destination = variable_get('views_pdf_template_stream', 'public://views_pdf_templates');
-
-        if (file_prepare_directory($destination, FILE_CREATE_DIRECTORY)) {
-          $file = file_save_upload('template_file', array(), $destination);
-          if (is_object($file)) {
-            $file_name =  basename($file->destination, '.pdf');
-            $form_state['values']['template'] = $file_name;
-            $file->status |= FILE_STATUS_PERMANENT;
-            $file = file_save($file);
-          }
-        }
 
         $this->set_option('leading_template', $form_state['values']['leading_template']);
         $this->set_option('template', $form_state['values']['template']);
