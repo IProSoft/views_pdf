@@ -1,0 +1,5 @@
+entity.views_pdf_template.overview:
+  title: Views PDF Templates
+  parent: system.admin_structure
+  description: 'List of Views PDF templates.'
+  route_name: entity.views_pdf_template.collection
