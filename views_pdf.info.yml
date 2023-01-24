@@ -2,11 +2,10 @@ name: Views PDF
 description: 'Views plugin to export a view as a PDF file.'
 type: module
 package: Views
-core_version_requirement: ^8.8 || ^9
+core_version_requirement: ^9.3 || ^10
 php: 8.0
 
 dependencies:
   - drupal:views
 
-# configure: entity.views_pdf.templates
 configure: entity.views_pdf_template.collection
