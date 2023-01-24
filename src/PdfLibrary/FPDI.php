@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace Drupal\views_pdf\PdfLibrary;
 
+use Drupal\file\Entity\File;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\ViewExecutable;
+use Drupal\views_pdf\Entity\ViewsPdfTemplate;
 
 class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
   protected static $fontList = NULL;
@@ -879,8 +881,9 @@ class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
    * @param $position 'leading' or 'succeed' according to position of document
    * @return integer Number of added pages
    */
-  public function addPdfDocument($path = '', $position = '') {
+  public function addPdfDocument($path = '', $position = '') : int {
     $this->position = $position;
+    $format = [];
 
     if (empty($path) || !file_exists($path)) {
       return 0;
@@ -889,11 +892,14 @@ class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
     $numberOfPages = $this->setSourceFile($path);
     for ($i = 1; $i <= $numberOfPages; $i++) {
 
-      $dim = $this->getTemplateSize($i);
-      $format[0] = $dim['w'];
-      $format[1] = $dim['h'];
+      $page = $this->importPage($i);
 
-      if ($dim['w'] > $dim['h']) {
+      // TODO: Extract to a method.
+      $dim = $this->getTemplateSize($page);
+      $format[0] = $dim['width'];
+      $format[1] = $dim['height'];
+
+      if ($dim['width'] > $dim['height']) {
         $orientation = 'L';
       }
       else {
@@ -905,7 +911,6 @@ class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
       // Ensure that all new content is printed to a new page
       $this->y = 0;
 
-      $page = $this->importPage($i);
       $this->useTemplate($page, 0, 0);
       $this->addNewPageBeforeNextContent = TRUE;
     }
@@ -973,7 +978,7 @@ class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
         // ajust the page format (only for the first template)
         if ($format == FALSE) {
 
-          $dim = $this->getTemplateSize($index);
+          $dim = $this->getTemplateSize($page);
           $format[0] = $dim['w'];
           $format[1] = $dim['h'];
           //$this->setPageFormat($format);
@@ -1053,47 +1058,28 @@ class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
    * This method returns a list of current uploaded files.
    */
   public static function getAvailableTemplates() {
-    if (self::$templateList != NULL) {
+    if (self::$templateList !== NULL) {
       return self::$templateList;
     }
 
-    $files_path = \Drupal::service('file_system')->realpath('public://');
-    $template_dir = \Drupal::config('views_pdf.settings')->get('views_pdf_template_path');
-    $dir = $files_path . '/' . $template_dir;
-    $templatesFiles = \Drupal::service('file_system')->scanDirectory($dir, '/.pdf$/', array('nomask' => '/(\.\.?|CVS)$/'), 1);
+    self::$templateList = ViewsPdfTemplate::loadMultiple();
 
-    $templates = array();
-
-    foreach ($templatesFiles as $file) {
-      $templates[$file->filename] = $file->name;
-    }
-
-    self::$templateList = $templates;
-
-    return $templates;
-
+    return self::$templateList;
   }
 
   /**
    * This method returns the path to a specific template.
    *
    * @param $template
-   * @param null $row
-   * @param null $view
    *
    * @return string
    */
-  public static function getTemplatePath($template, $row = NULL, $view = NULL) {
-    if (empty($template)) {
-      return '';
-    }
+  public static function getTemplatePath($template) {
+    $template = ViewsPdfTemplate::load($template);
 
-    if ($row !== NULL && $view !== NULL && !preg_match('/\.pdf/', $template)) {
-      return \Drupal::service('file_system')->realpath($row->field_data_field_file_node_values[0]['uri']);
-    }
+    $file = File::load($template->get('template')[0]);
 
-    $template_dir = \Drupal::config('views_pdf.settings')->get('views_pdf_template_path');
-    return \Drupal::service('file_system')->realpath($template_dir . '/' . $template);
+    return \Drupal::service('file_system')->realpath($file->getFileUri());
   }
 
   /**

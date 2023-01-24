@@ -172,7 +172,7 @@ class PDFFields extends RowPluginBase {
         '#default_value' => $this->options['formats'][$field]['position']['corner'] ?? 'top_left',
       ];
 
-      $relativeElements['field_' . $field] = $this->t('Field: !field', ['!field' => $option]);
+      $relativeElements['field_' . $field] = $this->t('Field: :field', [':field' => $option]);
 
 
       $form['formats'][$field]['position']['x'] = [

@@ -11,9 +11,11 @@ use Drupal\Core\Menu\MenuParentFormSelectorInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Routing\RouteProviderInterface;
 use Drupal\Core\State\StateInterface;
+use Drupal\Core\Url;
 use Drupal\views\Plugin\views\display\PathPluginBase;
 use Drupal\views\Plugin\views\display\ResponseDisplayPluginInterface;
 use Drupal\views\Views;
+use Drupal\views_pdf\Entity\ViewsPdfTemplate;
 use Drupal\views_pdf\PdfLibrary\FPDI;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -198,7 +200,7 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
 
     $this->view->pdf->setViewsHeaderFooter($this);
 
-  return $this->view->render();
+    return $this->view->render();
   }
 
   /**
@@ -212,6 +214,25 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
    * {@inheritdoc}
    */
   public function render() {
+
+    // Set default code
+    $this->view->pdf->SetFont('');
+
+    // Add leading pages
+    if (!empty($this->getOption('leading_template'))) {
+      $path = $this->view->pdf->getTemplatePath($this->getOption('leading_template'));
+      $this->view->pdf->addPdfDocument($path, 'leading');
+    }
+
+    // Set the default background template
+    if (!empty($this->getOption('template'))) {
+      $path = $this->view->pdf->getTemplatePath($this->getOption('template'));
+      $this->view->pdf->setDefaultPageTemplate($path, 'main');
+    }
+
+    // Clear the leading/succeed flag.
+    $this->view->pdf->addPdfDocument();
+
     $build = $this->view->style_plugin->render($this->view->result);
 
     $this->applyDisplayCacheabilityMetadata($build);
@@ -926,17 +947,16 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
       case 'pdf_template':
         $form['#title'] .= $this->t('PDF Templates');
 
-        $templates = array_merge([$this->t('-- None --')], FPDI::getAvailableTemplates());
         $form['leading'] = [
           '#type' => 'fieldset',
           '#title' => $this->t('Leading PDF Template'),
         ];
         $form['leading']['leading_template'] = [
-          '#type' => 'select',
-          '#options' => $templates,
-          '#required' => FALSE,
+          '#type' => 'entity_autocomplete',
+          '#target_type' => 'views_pdf_template',
+          '#selection_handler' => 'default',
           '#description' => $this->t('Here you specify a PDF file to be printed before the main content.'),
-          '#default_value' => $this->getOption('leading_template'),
+          '#default_value' => $this->getOption('leading_template') ? ViewsPdfTemplate::load($this->getOption('leading_template')) : '',
         ];
         $form['leading']['leading_header'] = [
           '#type' => 'checkbox',
@@ -954,10 +974,11 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
           '#title' => $this->t('Background PDF Template'),
         ];
         $form['background']['template'] = [
-          '#type' => 'select',
-          '#options' => $templates,
+          '#type' => 'entity_autocomplete',
+          '#target_type' => 'views_pdf_template',
+          '#selection_handler' => 'default',
           '#description' => $this->t('Here you specify a PDF file on which the content is printed. The first page of this document is used for the first page, in the target document. The second page is used for the second page in the target document and so on. If the target document has more that this template file, the last page of the template will be repeated. The leading document has no effect on the order of the pages.'),
-          '#default_value' => $this->getOption('template'),
+          '#default_value' => $this->getOption('template') ? ViewsPdfTemplate::load($this->getOption('template')) : '',
         ];
 
         $form['succeed'] = [
@@ -965,11 +986,11 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
           '#title' => $this->t('Trailing PDF Template'),
         ];
         $form['succeed']['succeed_template'] = [
-          '#type' => 'select',
-          '#options' => $templates,
-          '#required' => FALSE,
+          '#type' => 'entity_autocomplete',
+          '#target_type' => 'views_pdf_template',
+          '#selection_handler' => 'default',
           '#description' => $this->t('Here you specify a PDF file to be printed after the main content.'),
-          '#default_value' => $this->getOption('succeed_template'),
+          '#default_value' => $this->getOption('succeed_template') ? ViewsPdfTemplate::load($this->getOption('succeed_template')) : '',
         ];
         $form['succeed']['succeed_header'] = [
           '#type' => 'checkbox',
@@ -983,7 +1004,7 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
         ];
 
         $form['notes']['#markup'] =
-          $this->t('To manage template files and upload new ones, go to the <a href="@link">PDF Templates</a> tab on the main Views page.', ['@link' => '/admin/structure/views/pdfs']);
+          $this->t('To manage template files and upload new ones, go to the <a href=":link">PDF Templates</a> tab on the main Views page.', [':link' => Url::fromRoute('entity.views_pdf_template.collection')->toString()]);
 
         break;
 
