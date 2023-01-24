@@ -612,7 +612,7 @@ class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
       $this->lastWritingPage = $this->getPage();
 
       if ($stripHTML) {
-        $content = html_entity_decode(strip_tags($content), ENT_QUOTES | ENT_HTML401);
+        $content = html_entity_decode(strip_tags((string) $content), ENT_QUOTES | ENT_HTML401);
       }
 
       // Write the content of a field to the pdf file:

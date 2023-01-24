@@ -12,8 +12,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use function Symfony\Component\String\match;
 
-//  *   theme = "views_view_pdf_unformatted",
-
 /**
  * Style plugin to render a PDF Unformatted display style.
  *
@@ -36,6 +34,9 @@ class PDFUnformatted extends StylePluginBase {
 
   /** @var \Symfony\Component\HttpFoundation\Request */
   protected Request $request;
+
+  /** @var \Drupal\views_pdf\Plugin\views\display\PDF */
+  public $view;
 
   /**
    * {@inheritDoc}
@@ -67,33 +68,6 @@ class PDFUnformatted extends StylePluginBase {
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->request = $requestStack->getCurrentRequest();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  protected function defineOptions() : array {
-    $options = parent::defineOptions();
-
-    $options['algo'] = [
-      'default' => 'pdf'
-    ];
-
-    return $options;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public function buildOptionsForm(&$form, FormStateInterface $form_state) : void {
-    parent::buildOptionsForm($form, $form_state);
-
-    $form['algo'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Something'),
-      '#default_value' => $this->options['algo'] ?? 'nada',
-      '#description' => $this->t('Testing all the options and setup views display')
-    ];
   }
 
   /**

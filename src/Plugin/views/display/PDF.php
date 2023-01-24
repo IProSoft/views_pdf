@@ -49,6 +49,8 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
   /** @var \Drupal\Core\Menu\MenuParentFormSelectorInterface */
   // protected $parentFormSelector;
 
+  public int $numberOfRecords;
+
   /** @var \Drupal\Core\Render\RendererInterface */
   protected $renderer;
 
