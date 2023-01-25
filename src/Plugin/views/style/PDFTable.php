@@ -22,42 +22,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   display_types={"pdf"}
  * )
  */
-class PDFTable extends StylePluginBase {
-
-  /** @var \Drupal\views_pdf\Plugin\views\display\PDF */
-  public $view;
-
-  protected $usesFields = TRUE;
-
-  /**
-   * {@inheritDoc}
-   */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
-      $configuration,
-      $plugin_id,
-      $plugin_definition,
-      $container->get('request_stack')
-    );
-  }
-
-
-  /**
-   * @param array $configuration
-   * @param $plugin_id
-   * @param $plugin_definition
-   * @param \Drupal\Core\Http\RequestStack $requestStack
-   */
-  public function __construct(
-    array $configuration,
-    $plugin_id,
-    $plugin_definition,
-    RequestStack $requestStack
-  ) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->request = $requestStack->getCurrentRequest();
-  }
-
+class PDFTable extends PDFBaseStyle {
 
   /**
    * {@inheritDoc}
@@ -69,7 +34,7 @@ class PDFTable extends StylePluginBase {
   /**
    * {@inheritDoc}
    */
-  public function renderBuild() {
+  public function renderBuild(): array {
     $this->view->numberOfRecords = count($this->view->result);
     $this->view->pdf->drawTable($this->view, $this->options);
 
@@ -83,7 +48,7 @@ class PDFTable extends StylePluginBase {
    */
   public function render(): array {
     $render = match($this->request->get('_route')) {
-    'entity.view.preview_form' => $this->previewRender(),
+      'entity.view.preview_form' => $this->previewRender(),
       default => $this->renderBuild(),
     };
 
@@ -161,11 +126,6 @@ class PDFTable extends StylePluginBase {
       if (!empty($fields[$field]['exclude']) || $field == 'page_break') {
         continue;
       }
-
-      $safe = str_replace(['][', '_', ' '], '-', $field);
-
-      // the $id of the column for dependency checking.
-      $id = 'edit-style-options-columns-' . $safe;
 
       // markup for the field name
       $form['info'][$field]['name'] = [

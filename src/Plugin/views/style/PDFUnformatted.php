@@ -24,49 +24,15 @@ use function Symfony\Component\String\match;
  *   display_types={"pdf"}
  * )
  */
-class PDFUnformatted extends StylePluginBase {
+class PDFUnformatted extends PDFBaseStyle {
 
   /**
    * {@inheritdoc}
    */
   protected $usesRowPlugin = TRUE;
 
-  /** @var \Symfony\Component\HttpFoundation\Request */
-  protected Request $request;
-
-  /** @var \Drupal\views_pdf\Plugin\views\display\PDF */
-  public $view;
-
-  /**
-   * {@inheritDoc}
-   */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
-      $configuration,
-      $plugin_id,
-      $plugin_definition,
-      $container->get('request_stack')
-    );
-  }
-
   public function getStyle() : string {
     return 'pdf_unformatted';
-  }
-
-  /**
-   * @param array $configuration
-   * @param $plugin_id
-   * @param $plugin_definition
-   * @param \Drupal\Core\Http\RequestStack $requestStack
-   */
-  public function __construct(
-    array $configuration,
-    $plugin_id,
-    $plugin_definition,
-    RequestStack $requestStack
-  ) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->request = $requestStack->getCurrentRequest();
   }
 
   /**

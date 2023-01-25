@@ -620,7 +620,7 @@ class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
         $this->cell_padding['T'] = $this->cell_padding['B'] = !empty($options['text']['vpad'])?
           $options['text']['vpad'] : 0;
       }
-      $this->MultiCell($w, $h, $prefix . $content, $border, $align, $fill, $ln, $x, $y, $reseth, $stretch, $ishtml, $autopadding, $maxh);
+      $this->MultiCell((float) $w, (float) $h, $prefix . $content, $border, $align, $fill, $ln, $x, $y, $reseth, $stretch, $ishtml, $autopadding, (float) $maxh);
 
       // Post render.
       if (!empty($options['render']['custom_post'])) {

@@ -15,3 +15,21 @@ function views_pdf_theme($existing, $type, $theme, $path) : array {
     ]
   ];
 }
+
+/**
+ * Implements hook_form_BASE_FORM_ID_form().
+ *
+ * @param $form
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ * @param $form_id
+ */
+function views_pdf_form_view_preview_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+
+  /** @var \Drupal\views_ui\ViewUI $viewUI */
+  $viewUI = $form_state->getStorage()['view'];
+  $view = $viewUI->getExecutable();
+
+  if ('pdf' === $view->display_handler->getType()) {
+    $form['controls']['live_preview']['#default_value'] = FALSE;
+  }
+}
