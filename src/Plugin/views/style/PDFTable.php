@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Drupal\views_pdf\Plugin\views\style;
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Http\RequestStack;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Drupal\views\Plugin\views\style\StylePluginBase;
 use Drupal\views_pdf\PdfLibrary\FPDI;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -26,6 +26,8 @@ class PDFTable extends StylePluginBase {
 
   /** @var \Drupal\views_pdf\Plugin\views\display\PDF */
   public $view;
+
+  protected $usesFields = TRUE;
 
   /**
    * {@inheritDoc}
@@ -60,7 +62,7 @@ class PDFTable extends StylePluginBase {
   /**
    * {@inheritDoc}
    */
-  public function getStyle() : string {
+  public function getStyle(): string {
     return 'pdf_table';
   }
 
@@ -79,7 +81,7 @@ class PDFTable extends StylePluginBase {
   /**
    * {@inheritDoc}
    */
-  public function render() : array {
+  public function render(): array {
     $render = match($this->request->get('_route')) {
     'entity.view.preview_form' => $this->previewRender(),
       default => $this->renderBuild(),
@@ -91,7 +93,7 @@ class PDFTable extends StylePluginBase {
   /**
    * {@inheritDoc}
    */
-  public function defineOptions() {
+  public function defineOptions(): array {
     $options = parent::defineOptions();
 
     $this->definition['uses grouping'] = false;

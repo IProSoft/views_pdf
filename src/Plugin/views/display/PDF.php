@@ -19,7 +19,6 @@ use Drupal\views_pdf\Entity\ViewsPdfTemplate;
 use Drupal\views_pdf\PdfLibrary\FPDI;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * The plugin that handles a PDF.

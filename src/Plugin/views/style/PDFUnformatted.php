@@ -4,12 +4,11 @@ declare(strict_types=1);
 namespace Drupal\views_pdf\Plugin\views\style;
 
 use Drupal\Core\Annotation\Translation;
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Http\RequestStack;
 use Drupal\views\Annotation\ViewsStyle;
 use Drupal\views\Plugin\views\style\StylePluginBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use function Symfony\Component\String\match;
 
 /**

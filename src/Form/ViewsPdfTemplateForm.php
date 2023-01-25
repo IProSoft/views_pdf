@@ -51,7 +51,7 @@ class ViewsPdfTemplateForm extends EntityForm {
     ];
 
     $form['description'] = [
-      '#type' => 'textarea',
+      '#type' => 'textfield',
       '#title' => $this->t('Description'),
       '#default_value' => $this->entity->get('description'),
       '#description' => $this->t('Description of the Views PDF Template.'),
