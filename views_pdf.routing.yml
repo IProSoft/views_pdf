@@ -29,3 +29,11 @@ entity.views_pdf_template.delete_form:
     _title: 'Delete a Views PDF template'
   requirements:
     _permission: 'administer views_pdf_template'
+
+views_pdf.views_pdf_settings:
+  path: '/admin/config/content/views-pdf'
+  defaults:
+    _form: '\Drupal\views_pdf\Form\SettingsForm'
+    _title: 'Views PDF settings'
+  requirements:
+    _permission: 'administer site configuration'

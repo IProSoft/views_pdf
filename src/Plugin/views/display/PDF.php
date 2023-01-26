@@ -12,6 +12,7 @@ use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Routing\RouteProviderInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\Url;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\views\Plugin\views\display\PathPluginBase;
 use Drupal\views\Plugin\views\display\ResponseDisplayPluginInterface;
 use Drupal\views\Views;
@@ -75,7 +76,8 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
     /** @var RendererInterface */
     RendererInterface $renderer,
     protected EntityStorageInterface $menuStorage,
-    protected MenuParentFormSelectorInterface|null $parentFormSelector
+    protected MenuParentFormSelectorInterface|null $parentFormSelector,
+    protected ConfigFactoryInterface $configFactory
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $route_provider, $state);
     if (!$parentFormSelector) {
@@ -97,7 +99,8 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
       $container->get('state'),
       $container->get('renderer'),
       $container->get('entity_type.manager')->getStorage('menu'),
-      $container->get('menu.parent_form_selector')
+      $container->get('menu.parent_form_selector'),
+      $container->get('config.factory')
     );
   }
 
@@ -267,6 +270,7 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
    */
   protected function defineOptions() {
     $options = parent::defineOptions();
+    $viewsPdfSettings = $this->configFactory->get('views_pdf.settings');
 
     $options['displays'] = ['default' => []];
 
@@ -301,39 +305,39 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
     ];
 
     // New Options
-    $options['default_page_format'] = ['default' => 'A4'];
-    $options['default_page_format_custom'] = ['default' => ''];
-    $options['default_page_orientation'] = ['default' => 'P'];
-    $options['unit'] = ['default' => 'mm'];
-    $options['margin_left'] = ['default' => '15'];
-    $options['margin_right'] = ['default' => '15'];
-    $options['margin_top'] = ['default' => '15'];
-    $options['margin_bottom'] = ['default' => '15'];
+    $options['default_page_format'] = ['default' => $viewsPdfSettings->get('default_page_format')];
+    $options['default_page_format_custom'] = ['default' => $viewsPdfSettings->get('default_page_format_custom')];
+    $options['default_page_orientation'] = ['default' => $viewsPdfSettings->get('default_page_orientation')];
+    $options['unit'] = ['default' => $viewsPdfSettings->get('unit')];
+    $options['margin_left'] = ['default' => $viewsPdfSettings->get('margin_left')];
+    $options['margin_right'] = ['default' => $viewsPdfSettings->get('margin_right')];
+    $options['margin_top'] = ['default' => $viewsPdfSettings->get('margin_top')];
+    $options['margin_bottom'] = ['default' => $viewsPdfSettings->get('margin_bottom')];
 
-    $options['leading_template'] = ['default' => ''];
-    $options['template'] = ['default' => ''];
-    $options['succeed_template'] = ['default' => ''];
+    $options['leading_template'] = ['default' => $viewsPdfSettings->get('leading_template')];
+    $options['template'] = ['default' => $viewsPdfSettings->get('template')];
+    $options['succeed_template'] = ['default' => $viewsPdfSettings->get('succeed_template')];
 
-    $options['default_font_family'] = ['default' => 'helvetica'];
-    $options['default_font_style'] = ['default' => []];
-    $options['default_font_size'] = ['default' => '11'];
-    $options['default_text_align'] = ['default' => 'L'];
-    $options['default_font_color'] = ['default' => '000000'];
-    $options['default_text_hyphenate'] = ['default' => 'none'];
+    $options['default_font_family'] = ['default' => $viewsPdfSettings->get('default_font_family')];
+    $options['default_font_style'] = ['default' => $viewsPdfSettings->get('default_font_style') ?? []];
+    $options['default_font_size'] = ['default' => $viewsPdfSettings->get('default_font_size')];
+    $options['default_text_align'] = ['default' => $viewsPdfSettings->get('default_text_align')];
+    $options['default_font_color'] = ['default' => $viewsPdfSettings->get('default_font_color')];
+    $options['default_text_hyphenate'] = ['default' => $viewsPdfSettings->get('default_text_hyphenate')];
 
-    $options['header_margin'] = ['default' => '1'];
-    $options['header_font_family'] = ['default' => 'helvetica'];
-    $options['header_font_style'] = ['default' => []];
-    $options['header_font_size'] = ['default' => '12'];
-    $options['header_text_align'] = ['default' => 'C'];
-    $options['header_font_color'] = ['default' => '000000'];
+    $options['header_margin'] = ['default' => $viewsPdfSettings->get('header_margin')];
+    $options['header_font_family'] = ['default' => $viewsPdfSettings->get('header_font_family')];
+    $options['header_font_style'] = ['default' => $viewsPdfSettings->get('header_font_style') ?? []];
+    $options['header_font_size'] = ['default' => $viewsPdfSettings->get('header_font_size')];
+    $options['header_text_align'] = ['default' => $viewsPdfSettings->get('header_text_align')];
+    $options['header_font_color'] = ['default' => $viewsPdfSettings->get('header_font_color')];
 
-    $options['footer_spacing'] = ['default' => '1'];
-    $options['footer_font_family'] = ['default' => 'helvetica'];
-    $options['footer_font_style'] = ['default' => []];
-    $options['footer_font_size'] = ['default' => '12'];
-    $options['footer_text_align'] = ['default' => 'C'];
-    $options['footer_font_color'] = ['default' => '000000'];
+    $options['footer_spacing'] = ['default' => $viewsPdfSettings->get('footer_spacing')];
+    $options['footer_font_family'] = ['default' => $viewsPdfSettings->get('footer_font_family')];
+    $options['footer_font_style'] = ['default' => $viewsPdfSettings->get('footer_font_style') ?? []];
+    $options['footer_font_size'] = ['default' => $viewsPdfSettings->get('footer_font_size')];
+    $options['footer_text_align'] = ['default' => $viewsPdfSettings->get('footer_text_align')];
+    $options['footer_font_color'] = ['default' => $viewsPdfSettings->get('footer_font_color')];
 
     $options['css_file'] = ['default' => ''];
 
@@ -428,7 +432,7 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
     $options['menu'] = [
       'category' => 'page',
       'title' => $this->t('Menu'),
-      'value' => views_ui_truncate($menu_str, 24),
+      'value' => \views_ui_truncate($menu_str, 24),
     ];
 
     // This adds a 'Settings' link to the style_options setting if the style
@@ -719,7 +723,7 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
           '#title' => $this->t('Default Page Orientation'),
           '#required' => TRUE,
           '#options' => ['P' => $this->t('Portrait'), 'L' => $this->t('Landscape')],
-          '#description' => t('This is the default page orientation.'),
+          '#description' => $this->t('This is the default page orientation.'),
           '#default_value' => $this->getOption('default_page_orientation'),
         ];
         $form['unit'] = [
