@@ -4,10 +4,7 @@ declare(strict_types=1);
 namespace Drupal\views_pdf\Plugin\views\style;
 
 use Drupal\Core\Form\FormStateInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Drupal\views\Plugin\views\style\StylePluginBase;
 use Drupal\views_pdf\PdfLibrary\FPDI;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Style plugin to render a PDF Table display style.

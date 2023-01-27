@@ -5,10 +5,6 @@ namespace Drupal\views_pdf\Plugin\views\style;
 
 use Drupal\Core\Annotation\Translation;
 use Drupal\views\Annotation\ViewsStyle;
-use Drupal\views\Plugin\views\style\StylePluginBase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use function Symfony\Component\String\match;
 
 /**
@@ -40,7 +36,7 @@ class PDFUnformatted extends PDFBaseStyle {
    *
    * @return array
    */
-  protected function previewRender() : array {
+  protected function previewRender(): array {
     $message = $this->t("PDF cannot be viewed as a live preview.");
     $this->messenger()->addWarning($message);
 
@@ -52,7 +48,7 @@ class PDFUnformatted extends PDFBaseStyle {
    *
    * @return array
    */
-  protected function renderBuild() : array {
+  protected function renderBuild(): array {
 
     foreach ($this->view->result as $row_index => $row) {
       $this->view->row_index = $row_index;
@@ -67,7 +63,7 @@ class PDFUnformatted extends PDFBaseStyle {
   /**
    * {@inheritDoc}
    */
-  public function render() : array {
+  public function render(): array {
 
     $render = match($this->request->get('_route')) {
       'entity.view.preview_form' => $this->previewRender(),

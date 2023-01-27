@@ -39,16 +39,17 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
 
+  /**
+   * {@inheritdoc}
+   */
   protected $ajaxEnabled = FALSE;
 
+  /**
+   * {@inheritdoc}
+   */
   protected $usesPager = FALSE;
 
-  /** @var \Drupal\Core\Entity\EntityStorageInterface  */
-  // protected $menuStorage;
-
-  /** @var \Drupal\Core\Menu\MenuParentFormSelectorInterface */
-  // protected $parentFormSelector;
-
+  // TODO: Review use case.
   public int $numberOfRecords;
 
   /** @var \Drupal\Core\Render\RendererInterface */
@@ -156,7 +157,7 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
       $tcpdf_path = FPDI::getPathTcpdf();
       $cache_path = 'public://views_pdf_cache/';
 
-      \Drupal::service('file_system')->prepareDirectory($cache_path, );
+      \Drupal::service('file_system')->prepareDirectory($cache_path);
 
       global $base_url;
 
@@ -197,6 +198,9 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
     $this->view->pdf->setDefaultFontSize($this->getOption('default_font_size'));
     $this->view->pdf->setDefaultFontFamily($this->getOption('default_font_family'));
     $this->view->pdf->setDefaultFontStyle($this->getOption('default_font_style'));
+
+    $this->view->pdf->setRTL($this->getOption('right_to_left'));
+
     $this->view->pdf->setDefaultTextAlign($this->getOption('default_text_align'));
     $this->view->pdf->setDefaultFontColor($this->getOption('default_font_color'));
 
@@ -320,6 +324,7 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
 
     $options['default_font_family'] = ['default' => $viewsPdfSettings->get('default_font_family')];
     $options['default_font_style'] = ['default' => $viewsPdfSettings->get('default_font_style') ?? []];
+    $options['right_to_left'] = ['default' => $viewsPdfSettings->get('right_to_left')];
     $options['default_font_size'] = ['default' => $viewsPdfSettings->get('default_font_size')];
     $options['default_text_align'] = ['default' => $viewsPdfSettings->get('default_text_align')];
     $options['default_font_color'] = ['default' => $viewsPdfSettings->get('default_font_color')];
@@ -808,6 +813,12 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
           '#size' => 5,
           '#default_value' => $this->getOption('default_font_family'),
         ];
+        $form['right_to_left'] = [
+          '#type' => 'checkbox',
+          '#title' => $this->t('Set text to be Right to Left'),
+          '#description' => $this->t('For languages such arabic japanese with the rule right to left.'),
+          '#default_value' => $this->getOption('right_to_left'),
+        ];
         $form['default_font_style'] = [
           '#type' => 'checkboxes',
           '#title' => $this->t('Font Style'),
@@ -1074,6 +1085,7 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
 
       case 'pdf_fonts':
         $this->setOption('default_font_size', $form_state->getValue('default_font_size'));
+        $this->setOption('right_to_left', $form_state->getValue('right_to_left'));
         $this->setOption('default_font_style', $form_state->getValue('default_font_style'));
         $this->setOption('default_font_family', $form_state->getValue('default_font_family'));
         $this->setOption('default_text_align', $form_state->getValue('default_text_align'));

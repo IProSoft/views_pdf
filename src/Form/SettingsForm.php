@@ -143,6 +143,12 @@ class SettingsForm extends ConfigFormBase {
       '#options' => $font_styles,
       '#default_value' => $settings->get('default_font_style') ?? [],
     ];
+    $form['pdfBase']['right_to_left'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Set text to be Right to Left'),
+      '#description' => $this->t('For languages such arabic japanese with the rule right to left.'),
+      '#default_value' => $settings->get('right_to_left'),
+    ];
     $form['pdfBase']['default_text_align'] = [
       '#type' => 'radios',
       '#title' => $this->t('Text Alignment'),
@@ -343,6 +349,7 @@ class SettingsForm extends ConfigFormBase {
       ->set('template', $form_state->getValue('template'))
       ->set('succeed_template', $form_state->getValue('succeed_template'))
       ->set('default_font_family', $form_state->getValue('default_font_family'))
+      ->set('right_to_left', $form_state->getValue('right_to_left'))
       ->set('default_font_style', $form_state->getValue('default_font_style'))
       ->set('default_font_size', $form_state->getValue('default_font_size'))
       ->set('default_text_align', $form_state->getValue('default_text_align'))

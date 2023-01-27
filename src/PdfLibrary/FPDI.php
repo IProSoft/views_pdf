@@ -5,10 +5,12 @@ namespace Drupal\views_pdf\PdfLibrary;
 
 use Drupal\file\Entity\File;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
+use Drupal\views\ResultRow;
 use Drupal\views\ViewExecutable;
 use Drupal\views_pdf\Entity\ViewsPdfTemplate;
 
 class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
+
   protected static $fontList = NULL;
   protected static $fontListClean = NULL;
   protected static $templateList = NULL;
@@ -24,22 +26,25 @@ class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
   protected $defaultOrientation = 'P';
   protected $defaultFormat = 'A4';
   protected $addNewPageBeforeNextContent = FALSE;
-  protected $elements = array();
-  protected $headerFooterData = array();
-  protected $headerFooterOptions = array();
+  protected $elements = [];
+  protected $headerFooterData = [];
+  protected $headerFooterOptions = [];
   /** @var ViewExecutable */
   protected $view;
   /** @var DisplayPluginBase */
   protected $display;
   protected $y_header = 0;
   protected $y_footer = 0;
-  protected $lastWritingPage = 1;
+  protected $newPage = FALSE;
+  protected $lastWritingPage = 0;
+  protected $lastWritingYPositions;
   protected $lastWritingPositions;
+  protected $lastWritingElement;
   protected $position = '';
 
-  protected $tableHeader = array();
+  protected $tableHeader = [];
 
-  protected static $defaultFontList = array(
+  protected static $defaultFontList = [
     'almohanad' => 'AlMohanad',
     'arialunicid0' => 'ArialUnicodeMS',
     'courier' => 'Courier',
@@ -94,11 +99,18 @@ class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
     'timesi' => 'Times New Roman Italic',
     'zapfdingbats' => 'Zapf Dingbats',
     'zarbold' => 'ZarBold'
-  );
+  ];
 
   /**
    * This method overrides the parent constructor method.
    * this is need to reset the default values.
+   *
+   * @param string $orientation
+   * @param string $unit
+   * @param string $format
+   * @param bool $unicode
+   * @param string $encoding
+   * @param bool $diskcache
    */
   public function __construct($orientation='P', $unit='mm', $format='A4', $unicode=TRUE, $encoding='UTF-8', $diskcache=FALSE) {
     parent::__construct($orientation, $unit, $format, $unicode, $encoding, $diskcache);
@@ -226,10 +238,10 @@ class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
    * @return array
    *   Color as an array
    */
-  public function parseColor($color) {
+  public function parseColor(string $color): array {
     $color = trim($color, ', ');
     $components = explode(',', $color);
-    if (count($components) == 1) {
+    if (count($components) === 1) {
       return $this->convertHexColorToArray($color);
     }
     else {
@@ -247,46 +259,46 @@ class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
    * @param $row
    * @param $options
    * @param \Drupal\views\ViewExecutable $view
-   * @param null $key
+   * @param string|null $key
    * @param bool $printLabels
    */
-  public function drawContent($row, $options, ViewExecutable $view, $key = NULL, $printLabels = TRUE) {
+  public function drawContent(ResultRow $row, array $options, ViewExecutable $view, ?string $key = NULL, $printLabels = TRUE): void {
 
     $content = $view->field[$key]->theme($row);
 
     if (!is_array($options)) {
-      $options = array();
+      $options = [];
     }
 
     // Set defaults:
-    $options += array(
-      'position' => array(),
-      'text' => array(),
-      'render' => array(),
-    );
+    $options += [
+      'position' => [],
+      'text' => [],
+      'render' => [],
+    ];
 
-    $options['position'] += array(
+    $options['position'] += [
       'corner' => 'top_left',
       'x' => 0,
       'y' => 0,
       'object' => 'last_position',
       'width' => 0,
       'height' => 0,
-    );
+    ];
 
-    $options['text'] += array(
+    $options['text'] += [
       'font_family' => 'default',
       'font_style' => '',
-    );
+    ];
 
-    $options['render'] += array(
+    $options['render'] += [
       'eval_before' => '',
       'eval_after' => '',
       'bypass_eval_before' => FALSE,
       'bypass_eval_after' => FALSE,
       'custom_layout'     => FALSE,
       'custom_post'       => FALSE,
-    );
+    ];
 
     // Grid-mode flag, true if grid options are provided.
     $isgrid = !empty($options['grid']);
@@ -305,12 +317,13 @@ class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
     }
 
     // Check if there is a page, if not add it:
-    if (!$enoughSpace OR $this->getPage() == 0 OR $this->addNewPageBeforeNextContent) {
+    if (!$enoughSpace || $this->getPage() === 0 || $this->addNewPageBeforeNextContent) {
       $this->addNewPageBeforeNextContent = FALSE;
       $this->addPage();
+      $this->newPage = TRUE;
     }
 
-    // Get the page dimenstions again, because it can be that a new
+    // Get the page dimensions again, because it can be that a new
     // page was added with new dimensions.
     $pageDim = $this->getPageDimensions();
 
@@ -337,19 +350,27 @@ class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
 
     // Determine the last writing y coordinate, if we are on a new
     // page we need to reset it back to the top margin.
-    if ($this->lastWritingPage != $this->getPage() OR ($this->y + $this->bMargin) > $pageDim['hk']) {
-      $last_writing_y_position = $this->tMargin;
+
+    if ($this->newPage || ($this->y + $this->bMargin) > $pageDim['hk']) {
+      $this->lastWritingYPositions = $this->tMargin;
     }
     else {
-      $last_writing_y_position = $this->y;
+      $this->lastWritingYPositions = $this->y;
     }
 
     // Determine the x and y coordinates
-    if ($options['position']['object'] == 'last_position') {
+    if ($this->newPage && $options['position']['object'] === 'last_position') {
+      $this->defaultTextAlign;
+      $x = (float) $this->defaultTextAlign === 'L' ? $this->lMargin : $this->rMargin;
+      $y = (float) $this->tMargin;
+    }
+
+    if ($this->newPage === FALSE && $options['position']['object'] === 'last_position') {
       $x = (float) $this->x + (float) $options['position']['x'];
       $y = (float) $this->y + (float) $options['position']['y'];
     }
-    elseif ($options['position']['object'] == 'page') {
+
+    if ($options['position']['object'] === 'page') {
       switch ($options['position']['corner']) {
         default:
         case 'top_left':
@@ -373,8 +394,9 @@ class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
           break;
       }
     }
-    elseif (
-      $options['position']['object'] == 'self' or
+
+    if (
+      $options['position']['object'] == 'self' ||
       //$options['position']['object'] == 'last' or
       preg_match('/field\_(.*)/', $options['position']['object'], $rs)
     ) {
@@ -384,7 +406,7 @@ class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
       elseif ($options['position']['object'] == 'self') {
         $relative_to_element = $key;
       }
-      else {
+      elseif (isset($rs)) {
         $relative_to_element = $rs[1];
       }
 
@@ -419,20 +441,17 @@ class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
           $this->setPage($this->elements[$relative_to_element]['page']);
         }
         elseif ($this->getPage() != $this->elements[$relative_to_element]['page'] && $options['position']['object'] == 'self') {
-          $y -= $this->elements[$relative_to_element]['y'] + $last_writing_y_position;
+          $y -= $this->elements[$relative_to_element]['y'] + $this->lastWritingYPositions;
           $this->SetPage($this->lastWritingPage);
         }
 
       }
       else {
         $x = (float) $this->x;
-        $y = (float) $last_writing_y_position;
+        $y = (float) $this->lastWritingYPositions;
       }
     }
-    // No position match (for example header/footer).
-    else {
-      return;
-    }
+
     // In grid mode, set width and height not to exceed edge of grid cell.
     if ($isgrid) {
       // If start point is outside the cell, just return.
@@ -652,6 +671,7 @@ class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
 
       $this->lastWritingElement = $key;
     }
+    $this->newPage = FALSE;
   }
 
   /**
@@ -976,7 +996,7 @@ class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
         $page = $this->importPage($index);
 
         // ajust the page format (only for the first template)
-        if ($format == FALSE) {
+        if ($format === FALSE) {
 
           $dim = $this->getTemplateSize($page);
           $format[0] = $dim['w'];
@@ -1007,8 +1027,12 @@ class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
 
   /**
    * Sets the current header and footer of the page.
+   *
+   * @param \Drupal\views\ResultRow $record
+   * @param array $options
+   * @param \Drupal\views\ViewExecutable $view
    */
-  public function setHeaderFooter($record, $options, $view) {
+  public function setHeaderFooter(ResultRow $record, array $options, ViewExecutable $view): void {
     $this->headerFooterData[$this->getPage()] = $record;
     $this->headerFooterOptions = $options;
     $this->view = $view;
@@ -1155,11 +1179,18 @@ class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
     return $clean;
   }
 
-  public static function getPathTcpdf() : string {
-    $object = new \ReflectionObject((new \TCPDF()));
-    $method = $object->getMethod('__construct');
-    $declaringClass = $method->getDeclaringClass();
-    return (string) $declaringClass->getFilename();
+  public static function getPathTcpdf(): string {
+
+    $path = static function (): string {
+      $tcpdf = new \TCPDF();
+      $object = new \ReflectionObject($tcpdf);
+      $method = $object->getMethod('__construct');
+      $declaringClass = $method->getDeclaringClass();
+      $tcpdf->_destroy(true);
+      return (string) $declaringClass->getFilename();
+    };
+
+    return $path();
   }
 
   public static function pdfGetPageFormats(): array {

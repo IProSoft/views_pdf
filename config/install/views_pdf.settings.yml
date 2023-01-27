@@ -13,11 +13,12 @@ margin_bottom: 15
 leading_template: null
 template: null
 succeed_template: null
+right_to_left: false
 default_font_family: helvetica
 default_font_style: null
 default_font_size: 11
 default_text_align: L
-default_font_color: 333333
+default_font_color: '333333'
 default_text_hyphenate: none
 
 # Headers zone
@@ -26,7 +27,7 @@ header_font_family: helvetica
 header_font_style: null
 header_font_size: 12
 header_text_align: C
-header_font_color: 333333
+header_font_color: '333333'
 
 # Success or footer zone
 footer_spacing: 1
@@ -34,7 +35,7 @@ footer_font_family: helvetica
 footer_font_style: null
 footer_font_size: 12
 footer_text_align: C
-footer_font_color: 333333
+footer_font_color: '333333'
 
 # Templates
 leading_template: ''

@@ -16,6 +16,8 @@ use Drupal\views_pdf\PdfLibrary\FPDI;
  *
  * @ingroup views_row_plugins
  *
+ * @property FPDI $pdf
+ *
  * @ViewsRow(
  *   id = "pdf_fields",
  *   title = @Translation("PDF Fields"),
@@ -27,37 +29,40 @@ use Drupal\views_pdf\PdfLibrary\FPDI;
 class PDFFields extends RowPluginBase {
 
   /**
-   * Does the row plugin support to add fields to its output.
-   *
-   * @var bool
+   * {@inheritdoc}
    */
   protected $usesFields = TRUE;
 
-  protected $usesOptions = TRUE;
+  public FPDI $pdf;
 
+  /**
+   * @staticvar integer $view this is actually what is returned
+   *
+   * @param \Drupal\views\ResultRow $row
+   *
+   * @return string|void
+   */
   public function render($row) {
+    $this->pdf = $this->view->pdf;
+
     foreach ($this->view->field as $id => $field) {
       if (empty($field->options['exclude'])) {
-        if (isset($this->options['formats'][$id])) {
-          $options = $this->options['formats'][$id];
-        }
-        else {
-          $options = array();
-        }
+        $options = $this->options['formats'][$id] ?? [];
+
         switch ($this->view->getStyle()->pluginId) {
           case 'pdf_unformatted':
             // Register the row for header & footer on the current page before writing
             // each field. This is necessary in case the fields for one record span
             // multiple pages, or there is a page break. Otherwise there can be pages
             // with missing headers and footers.
-            $this->view->pdf->setHeaderFooter($row, $this->options, $this->view);
+            $this->pdf->setHeaderFooter($row, $this->options, $this->view);
 
-            $this->view->pdf->drawContent($row, $options, $this->view, $id);
+            $this->pdf->drawContent($row, $options, $this->view, $id);
 
             break;
           case 'pdf_grid':
             $options['grid'] = $this->options['grid'];
-            $this->view->pdf->drawContent($row, $options, $this->view, $id);
+            $this->pdf->drawContent($row, $options, $this->view, $id);
             $this->options['grid']['new_cell'] = FALSE;
             break;
         }
@@ -131,6 +136,7 @@ class PDFFields extends RowPluginBase {
       '#markup' => t('Enter field-specific style and position settings below'),
       '#suffix' => '</h4>',
     ];
+    $keepDetailsOpen = TRUE;
     foreach ($options as $field => $option) {
 
       if (!empty($fields[$field]['exclude'])) {
@@ -138,11 +144,11 @@ class PDFFields extends RowPluginBase {
       }
 
       $form['formats'][$field] = [
-        '#type' => 'fieldset',
+        '#type' => 'details',
         '#title' => Html::escape($option),
-        '#collapsed' => TRUE,
-        '#collapsible' => TRUE,
+        '#open' => $keepDetailsOpen,
       ];
+      $keepDetailsOpen = FALSE;
 
       $form['formats'][$field]['position'] = [
         '#type' => 'fieldset',
