@@ -19,10 +19,8 @@
         "slack": "https://app.slack.com/client/T06GX3JTS/C042ULM53KJ"
     },
     "require": {
-        "php": "^8.0"
-    },
-    "suggest": {
-        "setasign/fpdi@2.3.5+": "FPDI is a collection of PHP classes facilitating developers to read pages from existing PDF documents and use them as templates in FPDF.",
-        "tecnickcom/tcpdf@6.4.2+": "PHP library for generating PDF documents on-the-fly."
+        "php": "^8.0",
+        "setasign/fpdi": "^2.3",
+        "tecnickcom/tcpdf": "^6.4"
     }
 }
