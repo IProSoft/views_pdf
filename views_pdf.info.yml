@@ -8,4 +8,4 @@ php: 8.0
 dependencies:
   - drupal:views
 
-configure: entity.views_pdf_template.collection
+configure: views_pdf.views_pdf_settings
