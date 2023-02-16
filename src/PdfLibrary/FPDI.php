@@ -622,8 +622,17 @@ class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
       // Set Text Color.
       $this->SetTextColorArray($textColor);
 
-      // Set font.
-      $this->SetFont($font_family, implode('', $font_style), $font_size);
+      $pluginViewsPDFFont = \Drupal::service('plugin.manager.views_pdf.font')->getDefinitions();
+      if (in_array($font_family, $pluginViewsPDFFont, TRUE)) {
+        $providerPath = \Drupal::service('extension.list.module')->getPath($pluginViewsPDFFont[$font_family]['provider']);
+        $fontfile = "$providerPath/$pluginViewsPDFFont[$font_family]['base_dir']/$pluginViewsPDFFont[$font_family]['font_file']";
+
+        $fontData = $this->AddFont($font_family, implode('', $font_style), $fontfile);
+        $this->SetFont($font_family, $fontData['style'], $font_size);
+      }
+      else {
+        $this->SetFont($font_family, implode('', $font_style), $font_size);
+      }
 
       // Save the last page before starting writing, this
       // is needed to detect if we write over a page. Then we need
@@ -1106,6 +1115,16 @@ class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
     return \Drupal::service('file_system')->realpath($file->getFileUri());
   }
 
+  protected static function customsFontProviders(array $font_mapping): array {
+    $pluginViewsPDFFont = \Drupal::service('plugin.manager.views_pdf.font');
+
+    foreach ($pluginViewsPDFFont->getDefinitions() as $font) {
+      $font_mapping[$font['id']] = $font['label'];
+    }
+
+    return $font_mapping;
+  }
+
   /**
    * This method returns a list of available fonts.
    */
@@ -1137,6 +1156,8 @@ class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
         $font_mapping[$font->name] = $name;
       }
     }
+
+    $font_mapping = self::customsFontProviders($font_mapping);
 
     asort($font_mapping);
 
