@@ -5,6 +5,7 @@ namespace Drupal\views_pdf\Form;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\file\Entity\File;
 
 /**
  * Views PDF Template form.
@@ -61,7 +62,7 @@ class ViewsPdfTemplateForm extends EntityForm {
       '#type' => 'managed_file',
       '#name' => 'views_pdf_template',
       '#title' => $this->t('Template file'),
-      '#default_value' => '',
+      '#default_value' => $this->entity->get('template'),
       '#description' => $this->t('Select a file as template. Supported files pdf, jpg, jpeg, png, html, htm'),
       '#upload_validators' => [
         'file_validate_extensions' => ['pdf jpg jpeg png html htm']

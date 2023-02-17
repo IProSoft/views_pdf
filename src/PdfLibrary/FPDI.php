@@ -1008,10 +1008,10 @@ class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
         if ($format === FALSE) {
 
           $dim = $this->getTemplateSize($page);
-          $format[0] = $dim['w'];
-          $format[1] = $dim['h'];
+          $format[0] = $dim['width'];
+          $format[1] = $dim['height'];
           //$this->setPageFormat($format);
-          if ($dim['w'] > $dim['h']) {
+          if ($dim['width'] > $dim['height']) {
             $orientation = 'L';
           }
           else {
