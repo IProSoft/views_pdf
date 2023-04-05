@@ -63,9 +63,9 @@ class ViewsPdfTemplateForm extends EntityForm {
       '#name' => 'views_pdf_template',
       '#title' => $this->t('Template file'),
       '#default_value' => $this->entity->get('template'),
-      '#description' => $this->t('Select a file as template. Supported files pdf, jpg, jpeg, png, html, htm'),
+      '#description' => $this->t('Select a file as template. Supported file pdf'),
       '#upload_validators' => [
-        'file_validate_extensions' => ['pdf jpg jpeg png html htm']
+        'file_validate_extensions' => ['pdf']
       ],
       '#upload_location' => \Drupal::config('views_pdf.settings')->get('views_pdf_template_path'),
     ];
@@ -78,6 +78,9 @@ class ViewsPdfTemplateForm extends EntityForm {
    */
   public function save(array $form, FormStateInterface $form_state) {
     $result = parent::save($form, $form_state);
+    $file = \Drupal::entityTypeManager()->getStorage('file')->load($this->entity->get('template')[0]);
+    $file->setPermanent();
+    $file->save();
     $message_args = ['%label' => $this->entity->label()];
     $message = $result === SAVED_NEW
       ? $this->t('Created new views pdf template %label.', $message_args)
