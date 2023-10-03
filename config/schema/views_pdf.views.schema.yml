@@ -1,0 +1,10 @@
+views.field.page_break:
+  type: views_field
+  label: 'Page Break'
+  mapping:
+    last_row:
+      type: boolean
+      label: 'Exclude from last row'
+    every_nth:
+      type: integer
+      label: 'Insert break after how many rows?'
