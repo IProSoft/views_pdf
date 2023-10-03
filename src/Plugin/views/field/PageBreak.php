@@ -18,8 +18,8 @@ use Drupal\views\ResultRow;
  */
 class PageBreak extends FieldPluginBase {
 
-function query() {
-    // Override parent::query() and don't alter query.
+  public function query() {
+    // do nothing -- to override the parent query.
     $this->field_alias = 'pdf_page_break_' . $this->position;
   }
 
@@ -29,7 +29,7 @@ function query() {
   protected function defineOptions() {
     $options = parent::defineOptions();
 
-    $options['last_row'] = ['default' => FALSE];
+    $options['last_row'] = ['default' => TRUE];
     $options['every_nth'] = ['default' => 1];
 
     return $options;
@@ -61,8 +61,6 @@ function query() {
     unset($form['style_settings']);
     unset($form['alter']);
 
-    // dd($form);
-
     $form['last_row'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Exclude from last row'),
@@ -70,11 +68,12 @@ function query() {
       '#description' => $this->t('Check this box to not add new page on last row.'),
     ];
     $form['every_nth'] = array(
-      '#type' => 'textfield',
+      '#type' => 'number',
       '#title' => $this->t('Insert break after how many rows?'),
       '#size' => 10,
       '#default_value' => $this->options['every_nth'],
-      '#element_validate' => ['element_validate_integer_positive'],
+      '#min' => 1,
+      '#max' => 9999,
       '#description' => $this->t('Enter a value greater than 1 if you want to have multiple rows on one page')
     );
   }
