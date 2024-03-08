@@ -35,3 +35,4 @@ ent can be problematic.
    8. Under PDF Template Settings you can setup a background PDF.
    9. To add a page break, you can add a PDF page break field. When this field is rendered new page is added. Reorder the fields if necessary.
   10. You can find also a page number field. You can use it to print the current page number. Important for positioning the field in the header or footer, you need to set the relative position in the field settings to "In header / footer".
+  11. If you are having trouble getting images to appear in PDFs produced by this module, try the settings.php fix suggested in issue #3353899.
