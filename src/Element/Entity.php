@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\views_pdf\Element;
 
-use Drupal\Core\Render\Element\RenderElement;
+use Drupal\Core\Render\Element\RenderElementBase;
 
 /**
  * Provides a render element to display an entity.
@@ -28,7 +28,7 @@ use Drupal\Core\Render\Element\RenderElement;
  *
  * @RenderElement("entity")
  */
-class Entity extends RenderElement {
+class Entity extends RenderElementBase {
 
   /**
    * {@inheritdoc}

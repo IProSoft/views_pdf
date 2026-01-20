@@ -1,0 +1,7 @@
+name = Views PDF Display
+description = "Views plugin to export a view as a PDF file."
+dependencies[] = views
+package = Views
+core = 6.x
+
+

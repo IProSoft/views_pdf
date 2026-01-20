@@ -1,8 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Drupal\views_pdf\Plugin\views\display;
 
+use Drupal\Component\Utility\Unicode;
+use Symfony\Component\Routing\Route;
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Cache\CacheableResponse;
 use Drupal\Core\Entity\EntityStorageInterface;
@@ -49,13 +52,17 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
    */
   protected $usesPager = FALSE;
 
-  // TODO: Review use case.
+  /**
+   * @todo Review use case.
+   */
   public int $numberOfRecords;
 
-  /** @var \Drupal\Core\Render\RendererInterface */
+  /**
+   * @var \Drupal\Core\Render\RendererInterface */
   protected $renderer;
 
-  /** @var FPDI */
+  /**
+   * @var \Drupal\views_pdf\PdfLibrary\FPDI */
   public $pdf;
 
   /**
@@ -74,11 +81,12 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
     $plugin_definition,
     RouteProviderInterface $route_provider,
     StateInterface $state,
-    /** @var RendererInterface */
+    /**
+     * @var \Drupal\Core\Render\RendererInterface */
     RendererInterface $renderer,
     protected EntityStorageInterface $menuStorage,
     protected MenuParentFormSelectorInterface|null $parentFormSelector,
-    protected ConfigFactoryInterface $configFactory
+    protected ConfigFactoryInterface $configFactory,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $route_provider, $state);
     if (!$parentFormSelector) {
@@ -108,7 +116,7 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
   /**
    * {@inheritdoc}
    */
-  protected function getRoute($view_id, $display_id) : \Symfony\Component\Routing\Route {
+  protected function getRoute($view_id, $display_id) : Route {
     $route = parent::getRoute($view_id, $display_id);
 
     $route->setRequirement('_format', 'pdf');
@@ -123,6 +131,9 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
     return 'pdf';
   }
 
+  /**
+   *
+   */
   public static function buildResponse($view_id, $display_id, array $args = []) : StreamedResponse {
     $build = static::buildBasicRenderable($view_id, $display_id, $args);
 
@@ -151,8 +162,7 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
   public function execute() {
     parent::execute();
 
-
-    // Defines external configuration for TCPDF library
+    // Defines external configuration for TCPDF library.
     if (!defined('K_TCPDF_EXTERNAL_CONFIG')) {
       $tcpdf_path = FPDI::getPathTcpdf();
       $cache_path = 'public://views_pdf_cache/';
@@ -169,13 +179,15 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
       defined('K_PATH_IMAGES') || define('K_PATH_IMAGES', '');
       defined('K_BLANK_IMAGE') || define('K_BLANK_IMAGE', $tcpdf_path . '/examples/images/_blank.png');
       defined('K_CELL_HEIGHT_RATIO') || define('K_CELL_HEIGHT_RATIO', 1.25);
-      defined('K_SMALL_RATIO') || define('K_SMALL_RATIO', 2/3);
+      defined('K_SMALL_RATIO') || define('K_SMALL_RATIO', 2 / 3);
     }
 
     if ($this->getOption('default_page_format') === 'custom') {
       if (preg_match('~([0-9\.]+)x([0-9\.]+)~', $this->getOption('default_page_format_custom'), $result)) {
-        $format[0] = $result[1]; // width
-        $format[1] = $result[2]; // height
+        // Width.
+        $format[0] = $result[1];
+        // Height.
+        $format[1] = $result[2];
       }
       else {
         $format = 'A4';
@@ -186,7 +198,8 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
       $format = $this->getOption('default_page_format');
     }
 
-    $orientation = $this->getOption('default_page_orientation'); // P or L
+    // P or L.
+    $orientation = $this->getOption('default_page_orientation');
     $unit = $this->getOption('unit');
 
     $this->view->pdf = new FPDI($orientation, $unit, $format);
@@ -223,16 +236,16 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
    */
   public function render() {
 
-    // Set default code
+    // Set default code.
     $this->view->pdf->SetFont('');
 
-    // Add leading pages
+    // Add leading pages.
     if (!empty($this->getOption('leading_template'))) {
       $path = $this->view->pdf->getTemplatePath($this->getOption('leading_template'));
       $this->view->pdf->addPdfDocument($path, 'leading');
     }
 
-    // Set the default background template
+    // Set the default background template.
     if (!empty($this->getOption('template'))) {
       $path = $this->view->pdf->getTemplatePath($this->getOption('template'));
       $this->view->pdf->setDefaultPageTemplate($path, 'main');
@@ -308,7 +321,7 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
       ],
     ];
 
-    // New Options
+    // New Options.
     $options['default_page_format'] = ['default' => $viewsPdfSettings->get('default_page_format')];
     $options['default_page_format_custom'] = ['default' => $viewsPdfSettings->get('default_page_format_custom')];
     $options['default_page_orientation'] = ['default' => $viewsPdfSettings->get('default_page_orientation')];
@@ -377,16 +390,15 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
     $fonts = FPDI::getAvailableFontsCleanList();
 
     // Change Page title:
-    $categories['page'] = array(
+    $categories['page'] = [
       'title' => t('PDF settings'),
       'column' => 'second',
-      'build' => array(
+      'build' => [
         '#weight' => -10,
-      ),
-    );
+      ],
+    ];
 
-
-  // Since we're childing off the 'path' type, we'll still *call* our
+    // Since we're childing off the 'path' type, we'll still *call* our
     // category 'page' but let's override it so it says feed settings.
     $categories['page'] = [
       'title' => $this->t('PDF settings'),
@@ -437,7 +449,7 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
     $options['menu'] = [
       'category' => 'page',
       'title' => $this->t('Menu'),
-      'value' => \views_ui_truncate($menu_str, 24),
+      'value' => Unicode::truncate($menu_str, 24),
     ];
 
     // This adds a 'Settings' link to the style_options setting if the style
@@ -447,31 +459,31 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
       $options['menu']['links']['tab_options'] = $this->t('Change settings for the parent menu');
     }
 
-    // Add for pdf page settings
-    $options['pdf_page'] = array(
+    // Add for pdf page settings.
+    $options['pdf_page'] = [
       'category' => 'page',
       'title' => $this->t('PDF Page Settings'),
       'value' => $this->getOption('default_page_format'),
       'desc' => $this->t('Define some PDF specific settings.'),
-    );
+    ];
 
-    // Add for pdf font settings
-    $options['pdf_fonts'] = array(
+    // Add for pdf font settings.
+    $options['pdf_fonts'] = [
       'category' => 'page',
       'title' => $this->t('PDF Fonts Settings'),
-      'value' => $this->t(':family at :size pt', array(':family' => $fonts[$this->getOption('default_font_family')], ':size' => $this->getOption('default_font_size'))),
+      'value' => $this->t(':family at :size pt', [':family' => $fonts[$this->getOption('default_font_family')], ':size' => $this->getOption('default_font_size')]),
       'desc' => $this->t('Define some PDF specific settings.'),
-    );
+    ];
 
-    // Add for pdf header/footer settings
-    $options['pdf_header'] = array(
+    // Add for pdf header/footer settings.
+    $options['pdf_header'] = [
       'category' => 'page',
       'title' => $this->t('PDF Header & Footer'),
       'value' => $this->t('Settings'),
       'desc' => $this->t('Define PDF settings for header & footer.'),
-    );
+    ];
 
-    // add for pdf template settings
+    // Add for pdf template settings.
     if (!empty($this->getOption('leading_template')) ||
       !empty($this->getOption('template')) ||
       !empty($this->getOption('succeed_template'))
@@ -482,12 +494,12 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
       $isAnyTemplate = $this->t('No');
     }
 
-    $options['pdf_template'] = array(
+    $options['pdf_template'] = [
       'category' => 'page',
       'title' => $this->t('PDF Template Settings'),
       'value' => $isAnyTemplate,
       'desc' => $this->t('Define some PDF specific settings.'),
-    );
+    ];
 
     if ($this->getOption('css_file') === '') {
       $css_file = $this->t('None');
@@ -496,13 +508,12 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
       $css_file = $this->getOption('css_file');
     }
 
-    $options['css'] = array(
+    $options['css'] = [
       'category' => 'page',
       'title' => $this->t('CSS File'),
       'value' => $css_file,
       'desc' => $this->t('Define a CSS file attached to all HTML output.'),
-    );
-
+    ];
 
   }
 
@@ -706,7 +717,7 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
         ];
         break;
 
-      // PDF Form
+      // PDF Form.
       case 'pdf_page':
         $form['#title'] .= $this->t('PDF Page Options');
         $form['default_page_format'] = [
@@ -791,7 +802,7 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
           'none' => $this->t('None'),
           'auto' => $this->t('Detect automatically'),
         ];
-        // TODO: Build new Entity Hyphenate.
+        // @todo Build new Entity Hyphenate.
         $hyphenate = array_merge($hyphenate, []);
 
         $form['#title'] .= $this->t('PDF Default Font Options');
@@ -1050,6 +1061,7 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
         break;
     }
   }
+
   /**
    * {@inheritdoc}
    */
@@ -1061,7 +1073,7 @@ class PDF extends PathPluginBase implements ResponseDisplayPluginInterface {
         $menu = $form_state->getValue('menu');
         [$menu['menu_name'], $menu['parent']] = explode(':', $menu['parent'], 2);
         $this->setOption('menu', $menu);
-        // send ajax form to options page if we use it.
+        // Send ajax form to options page if we use it.
         if ($form_state->getValue(['menu', 'type']) == 'default tab') {
           $form_state->get('view')->addFormToStack('display', $this->display['id'], 'tab_options');
         }
