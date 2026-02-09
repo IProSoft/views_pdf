@@ -193,9 +193,12 @@ class FPDI extends \setasign\Fpdi\Tcpdf\Fpdi {
         $display->getOption("{$h_f}_font_size")
       );
       $yvar = "y_$h_f";
+      $renderer = \Drupal::service('renderer');
+      $html = $renderer->render($rendered);
+      $markup = new \Drupal\Component\Render\FormattableMarkup($html, array('!page' => $this->getPage()));
       $this->writeHTMLCell(0, 0,
         (float)$this->lMargin, (float)$this->$yvar,
-        format_string($rendered, array('!page' => $this->getPage())),
+        $markup->__toString(),
         0, 0,
         FALSE, TRUE,
         $display->getOption("{$h_f}_text_align")
